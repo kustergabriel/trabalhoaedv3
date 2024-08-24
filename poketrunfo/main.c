@@ -44,8 +44,6 @@ int main() {
     // busca pokemon na pokedex
     busca_pokedex(lista);
 
-    // opcional: imprime a lista para verificar
-    //imprime_Pokedex(lista);
 
     return 0;
 }
@@ -59,10 +57,10 @@ Lista2* openarq() {
     }
     printf("Arquivo lido com sucesso!\n");
 
-    char linha[500]; // Tamanho máximo de cada linha
+    char linha[500]; // tamanho máximo de cada linha
     Lista2* lista = NULL;
 
-    // Ler linha por linha do arquivo
+    // le linha por linha do arquivo
     while (fgets(linha, sizeof(linha), arq)) {
         Pokedex p; // Estrutura para armazenar dados do Pokémon
         char* token = strtok(linha, ",");
@@ -147,7 +145,6 @@ Lista2* openarq() {
                 //printf("Legendary: %s\n", p.legendary); // Depuração
             }
 
-            // Inserir na lista
             lista = insere(lista, p);
         } else {
             printf("Linha inválida: %s\n", linha); // Mensagem de depuração
@@ -158,25 +155,25 @@ Lista2* openarq() {
     return lista;
 }
 
-/* inserção no início */
+/* inserção no início */ //peguei o codigo da apostila
 Lista2* insere(Lista2* l, Pokedex p) {
     Lista2* novo = (Lista2*) malloc(sizeof(Lista2));
     if (!novo) {
         printf("Erro ao alocar memória!\n");
-        exit(1); // Saia se não conseguir alocar memória
+        exit(1); 
     }
     novo->info = p;
     novo->prox = l;
     novo->ant = NULL;
     
-    // Verifica se lista não está vazia
+    // verifica se lista não está vazia
     if (l != NULL) {
         l->ant = novo;
     }
     return novo;
 }
 
-// Imprime a lista de Pokémon
+// nao sei se vou usar porem vou deixar aqui
 void imprime_Pokedex(Lista2* l) {
     Lista2* p;
     for (p = l; p != NULL; p = p->prox) {
