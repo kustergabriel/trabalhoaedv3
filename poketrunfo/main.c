@@ -75,7 +75,7 @@ void libera_pilha(Pilha* p);
 void EmbaralhaEInsere(Lista2* lista, Fila* f, int valores[]);
 void transferefilaParaPilhas(Fila* fila, Lista2 *lista, Pilha* jog1, Pilha* jog2);
 void imprime_pilha(Pilha* p, int pilha_num);
-void queminiciabatalha(Pilha* jog1, Pilha* jog2);
+int queminiciabatalha(Pilha* jog1, Pilha* jog2);
 
 int main() {
     // variáveis
@@ -84,7 +84,6 @@ int main() {
     int valores[NUM_VALORES];
     Pilha* pilhajog1 = cria_pilha();
     Pilha* pilhajog2 = cria_pilha();
-    int *atributo = 0;
 
     // abre o arquivo e preenche a lista
     lista = openarq();
@@ -451,56 +450,63 @@ void imprime_fila(Fila* f) {
 
 // parte da batalha
 
-void queminiciabatalha(Pilha* jog1, Pilha* jog2) {
+int queminiciabatalha(Pilha* jog1, Pilha* jog2) {
     srand(time(NULL));  
-    int jogador = rand() % 2; // Gera 0 ou 1
+    int jogadorSorteado = rand() % 2; // Gera 0 ou 1
 
-    printf("Quem vai iniciar a batalha: Jogador %d\n", jogador + 1); // Ajusta para 1 ou 2
+    printf("Quem vai iniciar a batalha: Jogador %d\n", jogadorSorteado + 1); // Ajusta para 1 ou 2
 
     // Imprime a carta do topo da pilha do jogador escolhido
-    if (jogador == 0) {
-        imprime_pilha(jog1, jogador + 1); // Imprime a pilha do jogador 1
+    if (jogadorSorteado == 0) {
+        imprime_pilha(jog1, jogadorSorteado + 1); // Imprime a pilha do jogador 1
     } else {
-        imprime_pilha(jog2, jogador + 1); // Imprime a pilha do jogador 2
+        //printf("Aguarde o jogador 2 escolher seu atributo...\n");
     }
+
+    return jogadorSorteado;
 }
+
 
 void batalhaaaaa(Lista2 *l, Pilha *jog1, Pilha *jog2) {
     int atributo = 0;
-    queminiciabatalha(jog1, jog2); // Escolhe e imprime quem começa a batalha
+    int jogadorSorteado = queminiciabatalha(jog1, jog2); // Recebe o jogador sorteado
 
-    printf("Com qual atributo voce deseja jogar?\n");
-    printf("HP (1) | ATAQUE (2) | DEFESA (3) | ATAQUE.SP (4) | DEFESA.SP (5)\n");
-    scanf("%d", &atributo);
+    if (jogadorSorteado == 0) { // Jogador 1
+        printf("Com qual atributo voce deseja jogar?\n");
+        printf("HP (1) | ATAQUE (2) | DEFESA (3) | ATAQUE.SP (4) | DEFESA.SP (5)\n");
+        scanf("%d", &atributo);
 
-    Pokedex* pkm_jogador;
-    if (!pilha_vazia(jog1)) {
-        pkm_jogador = pop(jog1); // Remove o Pokémon do topo da pilha (ou use o topo diretamente)
-    } else {
-        printf("A pilha do jogador está vazia.\n");
-        return;
+        Pokedex* pkm_jogador;
+        if (!pilha_vazia(jog1)) {
+            pkm_jogador = pop(jog1); // Remove o Pokémon do topo da pilha (ou use o topo diretamente)
+        } else {
+            printf("A pilha do jogador está vazia.\n");
+            return;
+        }
+        switch (atributo) {
+            case 1:
+                printf("Voce escolheu o HP %d do seu Pokemon %s\n", pkm_jogador->hp, pkm_jogador->name);
+                break;
+            case 2:
+                printf("Voce escolheu o ATAQUE %d do seu Pokemon %s\n", pkm_jogador->atk, pkm_jogador->name);
+                break;
+            case 3:
+                printf("Voce escolheu a DEFESA %d do seu Pokemon %s\n", pkm_jogador->def, pkm_jogador->name);
+                break;
+            case 4:
+                printf("Voce escolheu o ATAQUE.SP %d do seu Pokemon %s\n", pkm_jogador->sp_atk, pkm_jogador->name);
+                break;
+            case 5:
+                printf("Voce escolheu a DEFESA.SP %d do seu Pokemon %s\n", pkm_jogador->sp_def, pkm_jogador->name);
+                break;
+            default:
+                printf("Atributo inválido.\n");
+                break;
+        }
+        // Recoloca o Pokémon na pilha após a seleção
+        push(jog1, pkm_jogador);
+    } else { // Jogador 2
+        printf("logica do jogador 2 que vai ser o pc\n");
     }
-    switch (atributo) {
-        case 1:
-            printf("Voce escolheu o HP %d do seu Pokemon %s\n", pkm_jogador->hp, pkm_jogador->name);
-            break;
-        case 2:
-            printf("Voce escolheu o ATAQUE %d do seu Pokemon %s\n", pkm_jogador->atk, pkm_jogador->name);
-            break;
-        case 3:
-            printf("Voce escolheu a DEFESA %d do seu Pokemon %s\n", pkm_jogador->def, pkm_jogador->name);
-            break;
-        case 4:
-            printf("Voce escolheu o ATAQUE.SP %d do seu Pokemon %s\n", pkm_jogador->sp_atk, pkm_jogador->name);
-            break;
-        case 5:
-            printf("Voce escolheu a DEFESA.SP %d do seu Pokemon %s\n", pkm_jogador->sp_def, pkm_jogador->name);
-            break;
-        default:
-            printf("Atributo inválido.\n");
-            break;
-    }
-
-    // Recoloca o Pokémon na pilha após a seleção
-    push(jog1, pkm_jogador);
 }
+
