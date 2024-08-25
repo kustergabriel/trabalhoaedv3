@@ -478,7 +478,7 @@ void batalhaaaaa(Lista2 *l, Pilha *jog1, Pilha *jog2) {
 
         Pokedex* pkm_jogador;
         if (!pilha_vazia(jog1)) {
-            pkm_jogador = pop(jog1); // Remove o Pokémon do topo da pilha (ou use o topo diretamente)
+            pkm_jogador = topo(jog1); // Obtém o Pokémon no topo da pilha sem removê-lo
         } else {
             printf("A pilha do jogador está vazia.\n");
             return;
@@ -503,10 +503,9 @@ void batalhaaaaa(Lista2 *l, Pilha *jog1, Pilha *jog2) {
                 printf("Atributo inválido.\n");
                 break;
         }
-        // Recoloca o Pokémon na pilha após a seleção
-        push(jog1, pkm_jogador);
+
     } else { // Jogador 2
-        printf("logica do jogador 2 que vai ser o pc\n");
+        printf("Jogador 2, aguarde o jogador 1 escolher seu atributo...\n");
     }
 }
 
