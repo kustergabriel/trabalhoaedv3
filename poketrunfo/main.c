@@ -34,7 +34,7 @@ typedef struct lista2 {
 
 // pilha
 typedef struct elem_pilha {
-    Pokedex *pokedex;
+    Pokedex* pokemon;
     struct elem_pilha* prox;
 } ElemPilha;
 
@@ -73,22 +73,31 @@ Pokedex* pop(Pilha* p);
 int pilha_vazia(Pilha* p);
 void libera_pilha(Pilha* p);
 void EmbaralhaEInsere(Lista2* lista, Fila* f, int valores[]);
+void transferefilaParaPilhas(Lista2* lista, Fila* fila, Pilha* jog1, Pilha* jog2);
+void imprime_pilha(Pilha* p, int pilha_num);
 
 int main() {
     // variáveis
     Lista2* lista = NULL;
     Fila* fila = cria_fila();
     int valores[NUM_VALORES];
+    Pilha* pilhajog1 = cria_pilha();
+    Pilha* pilhajog2 = cria_pilha();
 
     // abre o arquivo e preenche a lista
     lista = openarq();
 
     // busca pokemon na pokedex
-    busca_pokedex(lista);
+    //busca_pokedex(lista);
 
     // inserindo os pokemnos para a fila
     EmbaralhaEInsere(lista, fila, valores);
     imprime_fila(fila);
+
+    // transferindo para uma pilha a fila
+    transferefilaParaPilhas (fila, pilhajog1, pilhajog2, lista);
+    imprime_pilha (pilhajog1,1);
+    imprime_pilha (pilhajog2,2);
 
 
     liberar_lista(lista);
@@ -297,6 +306,45 @@ void EmbaralhaEInsere(Lista2* lista, Fila* f, int valores[]) {
     }
 }
 
+void transferefilaParaPilhas(Lista2* lista, Fila* fila, Pilha* jog1, Pilha* jog2) {
+    ElemFila* p = fila->ini;
+    int metade = 5;
+    int count = 0;
+
+    while (p != NULL) {
+        Lista2* l = lista;
+        Pokedex* pokemon = NULL;
+
+        // Busca o Pokémon na lista com base no número da Pokédex
+        while (l != NULL) {
+            if (l->info.num_Pokedex == (int)p->valor) {
+                pokemon = &(l->info);
+                printf("Pokémon %s encontrado na lista para inserção na pilha.\n", pokemon->name);
+                break;
+            }
+            l = l->prox;
+        }
+
+        // Verifica se o Pokémon foi encontrado e o insere na pilha correspondente
+        if (pokemon != NULL) {
+            if (count < metade) {
+                printf("Inserindo Pokémon %s na pilha do jogador 1.\n", pokemon->name);
+                push(jog1, pokemon);
+            } else {
+                printf("Inserindo Pokémon %s na pilha do jogador 2.\n", pokemon->name);
+                push(jog2, pokemon);
+            }
+        } else {
+            printf("Pokémon com ID %d não encontrado na lista. Não inserido na pilha.\n", (int)p->valor);
+        }
+
+        // Move para o próximo elemento na fila
+        p = p->prox;
+        count++;
+    }
+}
+
+
 void liberar_lista(Lista2* l) {
     Lista2* p = l;
     while (p != NULL) {
@@ -316,15 +364,38 @@ Pilha* cria_pilha() {
     return p;
 }
 
+void imprime_pilha(Pilha* p, int pilha_num) {
+    printf("Conteúdo da Pilha %d:\n", pilha_num);
+    ElemPilha* atual = p->topo;
+    if (atual == NULL) {
+        printf("A pilha está vazia.\n");
+        return;
+    }
+    while (atual != NULL) {
+        Pokedex* pkm = atual->pokemon;
+        printf("Num: %d, Name: %s, Type1: %s, Type2: %s, Total: %d, HP: %d, Atk: %d, Def: %d, Sp.Atk: %d, Sp.Def: %d, Speed: %d, Generation: %d, Legendary: %s\n",
+            pkm->num_Pokedex, pkm->name, pkm->type1, pkm->type2, pkm->all, pkm->hp, pkm->atk, pkm->def, pkm->sp_atk, pkm->sp_def, pkm->speed, pkm->generation, pkm->legendary);
+        atual = atual->prox;
+    }
+    printf("\n");
+}
+
 void push(Pilha* p, Pokedex* pokemon) {
-    ElemPilha* novo = (ElemPilha*) malloc(sizeof(ElemPilha));
+    if (pokemon == NULL) {
+        printf("Erro: Pokémon nulo passado para push.\n");
+        return;
+    }
+
+    ElemPilha* novo = (ElemPilha*)malloc(sizeof(ElemPilha));
     if (novo == NULL) {
-        printf("Erro ao alocar memória para o novo elemento!\n");
+        printf("Erro ao alocar memória para a pilha!\n");
         exit(1);
     }
-    novo->pokedex = pokemon;
+
+    novo->pokemon = pokemon;  // Copia o conteúdo do Pokémon para a pilha
     novo->prox = p->topo;
     p->topo = novo;
+    printf("Pokémon %s inserido na pilha.\n", pokemon->name);
 }
 
 Pokedex* pop(Pilha* p) {
@@ -333,7 +404,7 @@ Pokedex* pop(Pilha* p) {
         exit(1);
     }
     ElemPilha* temp = p->topo;
-    Pokedex* pkm = temp->pokedex;
+    Pokedex* pkm = temp->pokemon;
     p->topo = temp->prox;
     free(temp);
     return pkm;
@@ -382,10 +453,10 @@ void imprime_fila(Fila* f) {
         printf("Fila vazia.\n");
         return;
     }
-    printf("Pokemons na fila:\n");
+    printf("Pokémons na fila:\n");
     while (p != NULL) {
         printf("%d ", (int)p->valor);  // pega o id do pokemon
-        p = p->prox;  // vai pro proxxx
+        p = p->prox;  // vai pro próximo
     }
     printf("\n");
 }
