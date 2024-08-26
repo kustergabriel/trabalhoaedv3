@@ -32,30 +32,16 @@ typedef struct lista2 {
     struct lista2* prox;
 } Lista2;
 
-// pilha
-typedef struct elem_pilha {
-    Pokedex* pokemon;
-    struct elem_pilha* prox;
-} ElemPilha;
-
-typedef struct pilha {
-    ElemPilha* topo;
-} Pilha;
-
-
-
 // fila
-typedef struct elem{
- float valor;
- struct elem* prox;
-}ElemFila;
+typedef struct elem {
+    Pokedex* pokemon;
+    struct elem* prox;
+} ElemFila;
 
-typedef struct fila{
- ElemFila* ini;
- ElemFila* fim;
-}Fila;
-
-
+typedef struct fila {
+    ElemFila* ini;
+    ElemFila* fim;
+} Fila;
 
 // funções
 Lista2* openarq(); 
@@ -66,24 +52,21 @@ void geravalores(int valores[]);
 void liberar_lista(Lista2* l);
 void libera_fila(Fila* f);
 Fila* cria_fila();
+void insere_fila(Fila* f, Pokedex* pokemon);
+Pokedex* remove_fila(Fila* f);
+int fila_vazia(Fila* f);
 void imprime_fila(Fila* f);
-Pilha* cria_pilha();
-void push(Pilha* p, Pokedex* info);
-Pokedex* pop(Pilha* p);
-int pilha_vazia(Pilha* p);
-void libera_pilha(Pilha* p);
 void EmbaralhaEInsere(Lista2* lista, Fila* f, int valores[]);
-void transferefilaParaPilhas(Fila* fila, Lista2 *lista, Pilha* jog1, Pilha* jog2);
-void imprime_pilha(Pilha* p, int pilha_num);
-int queminiciabatalha(Pilha* jog1, Pilha* jog2);
+void transferefilaParaFilas(Fila* fila, Lista2 *lista, Fila* jog1, Fila* jog2);
+void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2);
 
 int main() {
     // variáveis
     Lista2* lista = NULL;
     Fila* fila = cria_fila();
     int valores[NUM_VALORES];
-    Pilha* pilhajog1 = cria_pilha();
-    Pilha* pilhajog2 = cria_pilha();
+    Fila* filajog1 = cria_fila();
+    Fila* filajog2 = cria_fila();
 
     // abre o arquivo e preenche a lista
     lista = openarq();
@@ -94,16 +77,17 @@ int main() {
     // inserindo os pokemons para a fila
     EmbaralhaEInsere(lista, fila, valores);
 
-    // transferindo para uma pilha a fila
-    transferefilaParaPilhas (fila, lista, pilhajog1, pilhajog2);
-    printf ("BEM VINDO(A) AO POKETRUNFO\n");
-    printf ("Batalha iniciada\n");
-    
-    batalhaaaaa(lista, pilhajog1, pilhajog2);
+    // transferindo para as filas dos jogadores
+    transferefilaParaFilas(fila, lista, filajog1, filajog2);
+    printf("BEM VINDO(A) AO POKETRUNFO\n");
+    printf("Batalha iniciada\n");
 
+    batalhaaaaa(lista, filajog1, filajog2);
 
     liberar_lista(lista);
     libera_fila(fila);
+    libera_fila(filajog1);
+    libera_fila(filajog2);
 
     return 0;
 }
@@ -120,27 +104,24 @@ Lista2* openarq() {
     char linha[500]; // tamanho máximo de cada linha
     Lista2* lista = NULL;
 
-    // le linha por linha do arquivo
+    // lê linha por linha do arquivo
     while (fgets(linha, sizeof(linha), arq)) {
         Pokedex p; // Estrutura para armazenar dados do Pokémon
         char* token = strtok(linha, ",");
 
         if (token) {
             p.num_Pokedex = atoi(token);
-            //printf("Num: %d\n", p.num_Pokedex); // Depuração
 
             token = strtok(NULL, ",");
             if (token) {
                 strncpy(p.name, token, NAMES - 1);
                 p.name[NAMES - 1] = '\0'; // Garantir string terminada
-                //printf("Name: %s\n", p.name); // Depuração
             }
 
             token = strtok(NULL, ",");
             if (token) {
                 strncpy(p.type1, token, NAMES - 1);
                 p.type1[NAMES - 1] = '\0'; // Garantir string terminada
-                //printf("Type1: %s\n", p.type1); // Depuração
             }
 
             token = strtok(NULL, ",");
@@ -154,56 +135,47 @@ Lista2* openarq() {
             token = strtok(NULL, ",");
             if (token) {
                 p.all = atoi(token);
-                //printf("Total: %d\n", p.all); // Depuração
             }
 
             token = strtok(NULL, ",");
             if (token) {
                 p.hp = atoi(token);
-                //printf("HP: %d\n", p.hp); // Depuração
             }
 
             token = strtok(NULL, ",");
             if (token) {
                 p.atk = atoi(token);
-                //printf("Atk: %d\n", p.atk); // Depuração
             }
 
             token = strtok(NULL, ",");
             if (token) {
                 p.def = atoi(token);
-                //printf("Def: %d\n", p.def); // Depuração
             }
 
             token = strtok(NULL, ",");
             if (token) {
                 p.sp_atk = atoi(token);
-                //printf("Sp.Atk: %d\n", p.sp_atk); // Depuração
             }
 
             token = strtok(NULL, ",");
             if (token) {
                 p.sp_def = atoi(token);
-                //printf("Sp.Def: %d\n", p.sp_def); // Depuração
             }
 
             token = strtok(NULL, ",");
             if (token) {
                 p.speed = atoi(token);
-                //printf("Speed: %d\n", p.speed); // Depuração
             }
 
             token = strtok(NULL, ",");
             if (token) {
                 p.generation = atoi(token);
-                //printf("Generation: %d\n", p.generation); // Depuração
             }
 
             token = strtok(NULL, ",");
             if (token) {
                 strncpy(p.legendary, token, NAMES - 1);
                 p.legendary[NAMES - 1] = '\0'; // Garantir string terminada
-                //printf("Legendary: %s\n", p.legendary); // Depuração
             }
 
             lista = insere(lista, p);
@@ -216,7 +188,7 @@ Lista2* openarq() {
     return lista;
 }
 
-/* inserção no início */ //peguei o codigo da apostila
+/* inserção no início */
 Lista2* insere(Lista2* l, Pokedex p) {
     Lista2* novo = (Lista2*) malloc(sizeof(Lista2));
     if (!novo) {
@@ -227,14 +199,12 @@ Lista2* insere(Lista2* l, Pokedex p) {
     novo->prox = l;
     novo->ant = NULL;
     
-    // verifica se lista não está vazia
     if (l != NULL) {
         l->ant = novo;
     }
     return novo;
 }
 
-// nao sei se vou usar porem vou deixar aqui
 void imprime_Pokedex(Lista2* l) {
     Lista2* p;
     for (p = l; p != NULL; p = p->prox) {
@@ -244,7 +214,6 @@ void imprime_Pokedex(Lista2* l) {
 }
 
 void busca_pokedex(Lista2* l) {
-    // variáveis
     char nomepokemon[30];
     Lista2* p;
     int encontrado = 0;
@@ -265,6 +234,7 @@ void busca_pokedex(Lista2* l) {
         printf("Pokemon nao encontrado na pokedex.\n");
     }
 }
+
 // gera indices para as cartas aleatorios
 void geravalores(int valores[]) {
     srand(time(NULL));  
@@ -272,342 +242,175 @@ void geravalores(int valores[]) {
         valores[i] = rand() % 802;  // Gera um número aleatório entre 0 e 801
     }
 }
-// pega os valores e verifica quais sao na pokedex
+
+// pega os valores e verifica quais sao os pokemons do arquivo
 void EmbaralhaEInsere(Lista2* lista, Fila* f, int valores[]) {
     geravalores(valores);
-    Lista2* p;
-    int encontrado;
+    Lista2* p = lista;
+    int inseridos = 0;
 
-    for (int i = 0; i < NUM_VALORES; i++) {
-        encontrado = 0;
-        for (p = lista; p != NULL; p = p->prox) {
+    while (p != NULL && inseridos < NUM_VALORES) {
+        for (int i = 0; i < NUM_VALORES; i++) {
             if (p->info.num_Pokedex == valores[i]) {
-                // Insere o Pokémon na fila
-                ElemFila* novo = (ElemFila*)malloc(sizeof(ElemFila));
-                if (!novo) {
-                    printf("Erro ao alocar memória para a fila!\n");
-                    exit(1);
-                }
-                novo->valor = valores[i];
-                novo->prox = NULL;
-                // Insere o novo elemento na fila
-                if (f->fim == NULL) {  // Fila vazia
-                    f->ini = novo;
-                    f->fim = novo;
-                } else {
-                    f->fim->prox = novo;
-                    f->fim = novo;
-                }
-                encontrado = 1;
+                insere_fila(f, &p->info);
+                inseridos++;
                 break;
             }
         }
-        if (!encontrado) {
-            printf("Pokémon com ID %d não encontrado na lista.\n", valores[i]);
-        }
-    }
-}
-
-void transferefilaParaPilhas(Fila* fila, Lista2 *lista, Pilha* jog1, Pilha* jog2) {
-    ElemFila* p = fila->ini;
-    int metade = 5;
-    int count = 0;
-
-    while (p != NULL) {
-        Lista2* l = lista;
-        Pokedex* pokemon = NULL;
-
-        // Busca o Pokémon na lista com base no número da Pokédex
-        while (l != NULL) {
-            if (l->info.num_Pokedex == (int)p->valor) {
-                pokemon = &(l->info);
-                break;
-            }
-            l = l->prox;
-        }
-
-        // Verifica se o Pokémon foi encontrado e o insere na pilha correspondente
-        if (pokemon != NULL) {
-            if (count < metade) {
-                push(jog1, pokemon);
-            } else {
-                push(jog2, pokemon);
-            }
-
-        // Move para o próximo elemento na fila
         p = p->prox;
-        count++;
-        }
     }
 }
 
-
-void liberar_lista(Lista2* l) {
-    Lista2* p = l;
-    while (p != NULL) {
-        Lista2* temp = p;
-        p = p->prox;
-        free(temp);
-    }
-}
-// pilhas
-Pilha* cria_pilha() {
-    Pilha* p = (Pilha*) malloc(sizeof(Pilha));
-    if (p == NULL) {
-        printf("Erro ao alocar memória para a pilha!\n");
-        exit(1);
-    }
-    p->topo = NULL;
-    return p;
-}
-
-Pokedex* topo(Pilha* p) {
-    if (p->topo == NULL) {
-        printf("Pilha vazia.\n");
-        return NULL;
-    }
-    return p->topo->pokemon;
-}
-
-// ta ai porem nao precisa ser usada eu achooo
-void imprime_pilha(Pilha* p, int pilha_num) {
-    printf("CARTA NO TOPO DA PILHA %d:\n", pilha_num);
-    ElemPilha* atual = p->topo;
-    if (atual == NULL) {
-        printf("A pilha está vazia.\n");
-        return;
-    }
-        Pokedex* pkm = atual->pokemon;
-        printf("Num: %d, Name: %s, Type1: %s, Type2: %s, Total: %d, HP: %d, Atk: %d, Def: %d, Sp.Atk: %d, Sp.Def: %d, Speed: %d, Generation: %d, Legendary: %s",
-            pkm->num_Pokedex, pkm->name, pkm->type1, pkm->type2, pkm->all, pkm->hp, pkm->atk, pkm->def, pkm->sp_atk, pkm->sp_def, pkm->speed, pkm->generation, pkm->legendary);
-        atual = atual->prox;
-    printf("\n");
-}
-
-void push(Pilha* p, Pokedex* pokemon) {
-    ElemPilha* novo = (ElemPilha*) malloc(sizeof(ElemPilha));
-    if (novo == NULL) {
-        printf("Erro ao alocar memória para o novo elemento!\n");
-        exit(1);
-    }
-    novo->pokemon = pokemon;
-    novo->prox = p->topo;
-    p->topo = novo;
-}
-
-Pokedex* pop(Pilha* p) {
-    if (p->topo == NULL) {
-        printf("Pilha vazia.\n");
-        exit(1);
-    }
-    ElemPilha* temp = p->topo;
-    Pokedex* pkm = temp->pokemon;
-    p->topo = temp->prox;
-    free(temp);
-    return pkm;
-}
-
-
-int pilha_vazia(Pilha* p) {
-    return p->topo == NULL; // Retorna 1 (true) se a pilha estiver vazia, 0 (false) caso contrário
-}
-
-void libera_pilha(Pilha* p) {
-    while (p->topo != NULL) {
-        ElemPilha* temp = p->topo;
-        p->topo = temp->prox;
-        free(temp); 
-    }
-    free(p);
-}
-
-
-// filas
+// criação da fila
 Fila* cria_fila() {
-    Fila* f = (Fila*)malloc(sizeof(Fila));
-    if (!f) {
-        printf("Erro ao alocar memória para a fila!\n");
-        exit(1);
-    }
-    f->ini = NULL;
-    f->fim = NULL;
+    Fila* f = (Fila*) malloc(sizeof(Fila));
+    f->ini = f->fim = NULL;
     return f;
 }
 
+// insere no fim da fila
+void insere_fila(Fila* f, Pokedex* pokemon) {
+    ElemFila* novo = (ElemFila*) malloc(sizeof(ElemFila));
+    novo->pokemon = pokemon;
+    novo->prox = NULL;
+    
+    if (f->fim != NULL) {
+        f->fim->prox = novo;
+    } else {
+        f->ini = novo;
+    }
+    f->fim = novo;
+}
+
+// remove do inicio da fila
+Pokedex* remove_fila(Fila* f) {
+    if (f->ini == NULL) {
+        return NULL;
+    }
+
+    ElemFila* t = f->ini;
+    Pokedex* pokemon = t->pokemon;
+    f->ini = t->prox;
+    
+    if (f->ini == NULL) {
+        f->fim = NULL;
+    }
+
+    free(t);
+    return pokemon;
+}
+
+// verifica se a fila está vazia
+int fila_vazia(Fila* f) {
+    return (f->ini == NULL);
+}
+
+// libera fila
 void libera_fila(Fila* f) {
-    ElemFila* p = f->ini;
-    while (p != NULL) {
-        ElemFila* temp = p;
-        p = p->prox;
-        free(temp);
+    ElemFila* q = f->ini;
+    while (q != NULL) {
+        ElemFila* t = q->prox;
+        free(q);
+        q = t;
     }
     free(f);
 }
 
+// imprime os pokemons da fila
 void imprime_fila(Fila* f) {
-    ElemFila* p = f->ini; 
-    if (p == NULL) {
-        printf("Fila vazia.\n");
-        return;
+    ElemFila* q = f->ini;
+    while (q != NULL) {
+        printf("Num: %d, Name: %s\n", q->pokemon->num_Pokedex, q->pokemon->name);
+        q = q->prox;
     }
-    printf("Pokémons na fila:\n");
-    while (p != NULL) {
-        printf("%d ", (int)p->valor);  // pega o id do pokemon
-        p = p->prox;  // vai pro próximo
+}
+
+// transfere pokemons da fila para os jogadores
+void transferefilaParaFilas(Fila* fila, Lista2 *lista, Fila* jog1, Fila* jog2) {
+    int contador = 0;
+    Pokedex* p;
+    while ((p = remove_fila(fila)) != NULL) {
+        if (contador % 2 == 0) {
+            insere_fila(jog1, p);
+        } else {
+            insere_fila(jog2, p);
+        }
+        contador++;
     }
-    printf("\n");
 }
 
 // parte da batalha
-
-void batalhaaaaa(Lista2 *l, Pilha *jog1, Pilha *jog2) {
+void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2) {
     int atributo = 0;
     Pokedex* pkm_jogador1 = NULL;
     Pokedex* pkm_jogador2 = NULL;
     int valorAtributo1 = 0, valorAtributo2 = 0;
     int rodadas = 1;
-    int continua;
 
+    while (!fila_vazia(jog1) && !fila_vazia(jog2)) {
+        printf("Round %d\n", rodadas);
 
+        pkm_jogador1 = remove_fila(jog1);
+        pkm_jogador2 = remove_fila(jog2);
 
-    while (!pilha_vazia(jog1) && !pilha_vazia(jog2)) { //loop para continuar ate que um jogador tenha a pilha vazia
-        int jogadorSorteado = rand() % 2; // 0 para Jogador 1, 1 para Jogador 2
-        printf("Rodada %d\n", rodadas);
-    if (jogadorSorteado == 0) { // Jogador 1
-        imprime_pilha(jog1,1);
-        printf("Com qual atributo voce deseja jogar?\n");
-        printf("HP (1) | ATAQUE (2) | DEFESA (3) | ATAQUE.SP (4) | DEFESA.SP (5)\n");
-        scanf("%d", &atributo);
+        // Escolher atributo aleatório
+        atributo = rand() % 6;
 
-        if (!pilha_vazia(jog1)) {
-            pkm_jogador1 = topo(jog1); // Obtém o Pokémon no topo da pilha sem removê-lo
-        } else {
-            printf("A pilha do jogador 1 está vazia.\n");
-            return;
-        }
-
-        if (!pilha_vazia(jog2)) {
-            pkm_jogador2 = topo(jog2); // Obtém o Pokémon no topo da pilha do jogador 2 sem removê-lo
-        } else {
-            printf("A pilha do jogador 2 está vazia.\n");
-            return;
-        }
-
-        // Obtém o valor do atributo escolhido para ambos os jogadores
         switch (atributo) {
-            case 1:
-                valorAtributo1 = pkm_jogador1->hp;
-                valorAtributo2 = pkm_jogador2->hp;
-                break;
-            case 2:
+            case 0:
                 valorAtributo1 = pkm_jogador1->atk;
                 valorAtributo2 = pkm_jogador2->atk;
+                printf("Comparando ATK\n");
                 break;
-            case 3:
+            case 1:
                 valorAtributo1 = pkm_jogador1->def;
                 valorAtributo2 = pkm_jogador2->def;
-                break;
-            case 4:
-                valorAtributo1 = pkm_jogador1->sp_atk;
-                valorAtributo2 = pkm_jogador2->sp_atk;
-                break;
-            case 5:
-                valorAtributo1 = pkm_jogador1->sp_def;
-                valorAtributo2 = pkm_jogador2->sp_def;
-                break;
-            default:
-                printf("Atributo inválido.\n");
-                return;
-        }
-
-    } else { // Jogador 2
-        printf("Jogador 2 escolhendo seu atributo!!\n");
-
-        if (!pilha_vazia(jog1)) {
-            pkm_jogador1 = topo(jog1); // Obtém o Pokémon no topo da pilha do jogador 1 sem removê-lo
-        } else {
-            printf("A pilha do jogador 1 está vazia.\n");
-            return;
-        }
-
-        if (!pilha_vazia(jog2)) {
-            pkm_jogador2 = topo(jog2); // Obtém o Pokémon no topo da pilha sem removê-lo
-        } else {
-            printf("A pilha do jogador 2 está vazia.\n");
-            return;
-        }
-
-        // Jogador 2 escolhe um atributo aleatório
-        atributo = rand() % 5 + 1;
-        switch (atributo) {
-            case 1:
-                valorAtributo1 = pkm_jogador1->hp;
-                valorAtributo2 = pkm_jogador2->hp;
+                printf("Comparando DEF\n");
                 break;
             case 2:
-                valorAtributo1 = pkm_jogador1->atk;
-                valorAtributo2 = pkm_jogador2->atk;
+                valorAtributo1 = pkm_jogador1->hp;
+                valorAtributo2 = pkm_jogador2->hp;
+                printf("Comparando HP\n");
                 break;
             case 3:
-                valorAtributo1 = pkm_jogador1->def;
-                valorAtributo2 = pkm_jogador2->def;
-                break;
-            case 4:
                 valorAtributo1 = pkm_jogador1->sp_atk;
                 valorAtributo2 = pkm_jogador2->sp_atk;
+                printf("Comparando SP_ATK\n");
                 break;
-            case 5:
+            case 4:
                 valorAtributo1 = pkm_jogador1->sp_def;
                 valorAtributo2 = pkm_jogador2->sp_def;
+                printf("Comparando SP_DEF\n");
                 break;
-            default:
-                printf("Atributo inválido.\n");
-                return;
+            case 5:
+                valorAtributo1 = pkm_jogador1->speed;
+                valorAtributo2 = pkm_jogador2->speed;
+                printf("Comparando SPEED\n");
+                break;
         }
-    }
 
-    // Determina o vencedor da rodada
-    if (valorAtributo1 > valorAtributo2) { //.jogador 1 ganha
-        imprime_pilha(jog1,1);
-        imprime_pilha(jog2,2);
-        printf("Jogador 1 venceu esta batalha! O Pokemon %s do Jogador 2 passa para o Jogador 1!\n", pkm_jogador2->name);
-        printf ("O atributo escolhido foi: %d\n", atributo);
-        Pokedex* carta_inferior = pop(jog2);
-        // como dar push no fim???????????
-        printf ("Insira 1 para prosseguir...");
-        scanf ("%d", &continua);
-        if (continua == 1) {
-            printf("\n\n");
+        // Determinar o vencedor
+        if (valorAtributo1 > valorAtributo2) {
+            printf("Jogador 1 venceu a rodada!\n");
+            insere_fila(jog1, pkm_jogador1);
+            insere_fila(jog1, pkm_jogador2);
+        } else if (valorAtributo1 < valorAtributo2) {
+            printf("Jogador 2 venceu a rodada!\n");
+            insere_fila(jog2, pkm_jogador1);
+            insere_fila(jog2, pkm_jogador2);
+        } else {
+            printf("Empate na rodada! Ambos os pokemons retornam à fila de seus jogadores.\n");
+            insere_fila(jog1, pkm_jogador1);
+            insere_fila(jog2, pkm_jogador2);
         }
-    } else if (valorAtributo2 > valorAtributo1) { //jogador 2 ganha
-        imprime_pilha(jog2,2);
-        imprime_pilha(jog1,1);
-        printf("Jogador 2 venceu esta batalha! O Pokemon %s do Jogador 1 passa para o Jogador 2!\n", pkm_jogador1->name);
-        printf ("O atributo escolhido foi: %d\n", atributo);
-        Pokedex* carta_inferior = pop(jog1);
-        // como dar push no fim???????????
-        printf ("Insira 1 para prosseguir...");
-        scanf ("%d", &continua);
-        if (continua == 1) {
-            printf("\n\n");
-        }
-        // como dar push no fim???????????
-    } else { //empate
-        imprime_pilha(jog1,1);
-        imprime_pilha(jog2,2);
-        printf("Empate! Nenhuma carta é transferida.\n");
-        // nao sei como fazer isso ainda
-        }
+
         rodadas++;
     }
-    // verifica o vencedor final
-    if (pilha_vazia(jog1)) {
-        printf("Jogador 2 eh o vencedor!!!!\n");
-        imprime_pilha(jog1,1);
-    } else if (pilha_vazia(jog2)) {
-        printf("Jogador 1 eh o vencedor!!!!\n");
-        imprime_pilha(jog2,2);
-}
 
+    // Verificar quem é o vencedor
+    if (fila_vazia(jog1)) {
+        printf("Jogador 2 venceu a batalha!\n");
+    } else if (fila_vazia(jog2)) {
+        printf("Jogador 1 venceu a batalha!\n");
+    }
 }
-
