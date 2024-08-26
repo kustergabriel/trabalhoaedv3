@@ -96,8 +96,9 @@ int main() {
 
     // transferindo para uma pilha a fila
     transferefilaParaPilhas (fila, lista, pilhajog1, pilhajog2);
-    printf ("Cartas Jogadores 1 e 2 OK!!!\n");
+    printf ("BEM VINDO(A) AO POKETRUNFO\n");
     printf ("Batalha iniciada\n");
+    
     batalhaaaaa(lista, pilhajog1, pilhajog2);
 
 
@@ -108,7 +109,7 @@ int main() {
 }
 
 Lista2* openarq() {
-    FILE *arq = fopen("/Meus Projetos/Trabalho Final AED1/trabalhoaedv3/poketrunfo/pokemon.csv", "rt"); // Use o caminho relativo para o arquivo
+    FILE *arq = fopen("/Users/Gabriel Azevedo/Documents/GitHub/trabalhoaedv3/poketrunfo/pokemon.csv", "rt"); // Use o caminho relativo para o arquivo
 
     if (arq == NULL) {
         printf("Problemas na abertura do arquivo!\n");
@@ -359,6 +360,15 @@ Pilha* cria_pilha() {
     p->topo = NULL;
     return p;
 }
+
+Pokedex* topo(Pilha* p) {
+    if (p->topo == NULL) {
+        printf("Pilha vazia.\n");
+        return NULL;
+    }
+    return p->topo->pokemon;
+}
+
 // ta ai porem nao precisa ser usada eu achooo
 void imprime_pilha(Pilha* p, int pilha_num) {
     printf("CARTA NO TOPO DA PILHA %d:\n", pilha_num);
@@ -450,62 +460,154 @@ void imprime_fila(Fila* f) {
 
 // parte da batalha
 
-int queminiciabatalha(Pilha* jog1, Pilha* jog2) {
-    srand(time(NULL));  
-    int jogadorSorteado = rand() % 2; // Gera 0 ou 1
-
-    printf("Quem vai iniciar a batalha: Jogador %d\n", jogadorSorteado + 1); // Ajusta para 1 ou 2
-
-    // Imprime a carta do topo da pilha do jogador escolhido
-    if (jogadorSorteado == 0) {
-        imprime_pilha(jog1, jogadorSorteado + 1); // Imprime a pilha do jogador 1
-    } else {
-        //printf("Aguarde o jogador 2 escolher seu atributo...\n");
-    }
-
-    return jogadorSorteado;
-}
-
-
 void batalhaaaaa(Lista2 *l, Pilha *jog1, Pilha *jog2) {
     int atributo = 0;
-    int jogadorSorteado = queminiciabatalha(jog1, jog2); // Recebe o jogador sorteado
+    Pokedex* pkm_jogador1 = NULL;
+    Pokedex* pkm_jogador2 = NULL;
+    int valorAtributo1 = 0, valorAtributo2 = 0;
+    int rodadas = 1;
+    int continua;
 
+
+
+    while (!pilha_vazia(jog1) && !pilha_vazia(jog2)) { //loop para continuar ate que um jogador tenha a pilha vazia
+        int jogadorSorteado = rand() % 2; // 0 para Jogador 1, 1 para Jogador 2
+        printf("Rodada %d\n", rodadas);
     if (jogadorSorteado == 0) { // Jogador 1
+        imprime_pilha(jog1,1);
         printf("Com qual atributo voce deseja jogar?\n");
         printf("HP (1) | ATAQUE (2) | DEFESA (3) | ATAQUE.SP (4) | DEFESA.SP (5)\n");
         scanf("%d", &atributo);
 
-        Pokedex* pkm_jogador;
         if (!pilha_vazia(jog1)) {
-            pkm_jogador = topo(jog1); // Obtém o Pokémon no topo da pilha sem removê-lo
+            pkm_jogador1 = topo(jog1); // Obtém o Pokémon no topo da pilha sem removê-lo
         } else {
-            printf("A pilha do jogador está vazia.\n");
+            printf("A pilha do jogador 1 está vazia.\n");
             return;
         }
+
+        if (!pilha_vazia(jog2)) {
+            pkm_jogador2 = topo(jog2); // Obtém o Pokémon no topo da pilha do jogador 2 sem removê-lo
+        } else {
+            printf("A pilha do jogador 2 está vazia.\n");
+            return;
+        }
+
+        // Obtém o valor do atributo escolhido para ambos os jogadores
         switch (atributo) {
             case 1:
-                printf("Voce escolheu o HP %d do seu Pokemon %s\n", pkm_jogador->hp, pkm_jogador->name);
+                valorAtributo1 = pkm_jogador1->hp;
+                valorAtributo2 = pkm_jogador2->hp;
                 break;
             case 2:
-                printf("Voce escolheu o ATAQUE %d do seu Pokemon %s\n", pkm_jogador->atk, pkm_jogador->name);
+                valorAtributo1 = pkm_jogador1->atk;
+                valorAtributo2 = pkm_jogador2->atk;
                 break;
             case 3:
-                printf("Voce escolheu a DEFESA %d do seu Pokemon %s\n", pkm_jogador->def, pkm_jogador->name);
+                valorAtributo1 = pkm_jogador1->def;
+                valorAtributo2 = pkm_jogador2->def;
                 break;
             case 4:
-                printf("Voce escolheu o ATAQUE.SP %d do seu Pokemon %s\n", pkm_jogador->sp_atk, pkm_jogador->name);
+                valorAtributo1 = pkm_jogador1->sp_atk;
+                valorAtributo2 = pkm_jogador2->sp_atk;
                 break;
             case 5:
-                printf("Voce escolheu a DEFESA.SP %d do seu Pokemon %s\n", pkm_jogador->sp_def, pkm_jogador->name);
+                valorAtributo1 = pkm_jogador1->sp_def;
+                valorAtributo2 = pkm_jogador2->sp_def;
                 break;
             default:
                 printf("Atributo inválido.\n");
-                break;
+                return;
         }
 
     } else { // Jogador 2
-        printf("Jogador 2, aguarde o jogador 1 escolher seu atributo...\n");
+        printf("Jogador 2 escolhendo seu atributo!!\n");
+
+        if (!pilha_vazia(jog1)) {
+            pkm_jogador1 = topo(jog1); // Obtém o Pokémon no topo da pilha do jogador 1 sem removê-lo
+        } else {
+            printf("A pilha do jogador 1 está vazia.\n");
+            return;
+        }
+
+        if (!pilha_vazia(jog2)) {
+            pkm_jogador2 = topo(jog2); // Obtém o Pokémon no topo da pilha sem removê-lo
+        } else {
+            printf("A pilha do jogador 2 está vazia.\n");
+            return;
+        }
+
+        // Jogador 2 escolhe um atributo aleatório
+        atributo = rand() % 5 + 1;
+        switch (atributo) {
+            case 1:
+                valorAtributo1 = pkm_jogador1->hp;
+                valorAtributo2 = pkm_jogador2->hp;
+                break;
+            case 2:
+                valorAtributo1 = pkm_jogador1->atk;
+                valorAtributo2 = pkm_jogador2->atk;
+                break;
+            case 3:
+                valorAtributo1 = pkm_jogador1->def;
+                valorAtributo2 = pkm_jogador2->def;
+                break;
+            case 4:
+                valorAtributo1 = pkm_jogador1->sp_atk;
+                valorAtributo2 = pkm_jogador2->sp_atk;
+                break;
+            case 5:
+                valorAtributo1 = pkm_jogador1->sp_def;
+                valorAtributo2 = pkm_jogador2->sp_def;
+                break;
+            default:
+                printf("Atributo inválido.\n");
+                return;
+        }
     }
+
+    // Determina o vencedor da rodada
+    if (valorAtributo1 > valorAtributo2) { //.jogador 1 ganha
+        imprime_pilha(jog1,1);
+        imprime_pilha(jog2,2);
+        printf("Jogador 1 venceu esta batalha! O Pokemon %s do Jogador 2 passa para o Jogador 1!\n", pkm_jogador2->name);
+        printf ("O atributo escolhido foi: %d\n", atributo);
+        Pokedex* carta_inferior = pop(jog2);
+        // como dar push no fim???????????
+        printf ("Insira 1 para prosseguir...");
+        scanf ("%d", &continua);
+        if (continua == 1) {
+            printf("\n\n");
+        }
+    } else if (valorAtributo2 > valorAtributo1) { //jogador 2 ganha
+        imprime_pilha(jog2,2);
+        imprime_pilha(jog1,1);
+        printf("Jogador 2 venceu esta batalha! O Pokemon %s do Jogador 1 passa para o Jogador 2!\n", pkm_jogador1->name);
+        printf ("O atributo escolhido foi: %d\n", atributo);
+        Pokedex* carta_inferior = pop(jog1);
+        // como dar push no fim???????????
+        printf ("Insira 1 para prosseguir...");
+        scanf ("%d", &continua);
+        if (continua == 1) {
+            printf("\n\n");
+        }
+        // como dar push no fim???????????
+    } else { //empate
+        imprime_pilha(jog1,1);
+        imprime_pilha(jog2,2);
+        printf("Empate! Nenhuma carta é transferida.\n");
+        // nao sei como fazer isso ainda
+        }
+        rodadas++;
+    }
+    // verifica o vencedor final
+    if (pilha_vazia(jog1)) {
+        printf("Jogador 2 eh o vencedor!!!!\n");
+        imprime_pilha(jog1,1);
+    } else if (pilha_vazia(jog2)) {
+        printf("Jogador 1 eh o vencedor!!!!\n");
+        imprime_pilha(jog2,2);
+}
+
 }
 
