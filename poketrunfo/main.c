@@ -328,6 +328,15 @@ void transferefilaParaFilas(Fila* fila, Lista2* lista, Fila* jog1, Fila* jog2) {
         i++;
     }
 }
+Pokedex* topo_fila(Fila* f) {
+    if (f->ini == NULL) {
+        printf("Fila vazia!\n");
+        return NULL;
+    }
+    // O ponteiro 'ini' aponta para o primeiro elemento da fila
+    return f->ini->pokemon;
+}
+
 
 // imprime a fila
 void imprime_fila(Fila* f) {
@@ -357,35 +366,42 @@ void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2) {
         printf("Rodada %d\n", rodadas);
         
         if (jogadorSorteado == 0) { // jogador 1
+            printf ("Fila jogador 1\n");
             imprime_fila(jog1);
             printf("Com qual atributo voce deseja jogar?\n");
             printf("HP (1) | ATAQUE (2) | DEFESA (3) | ATAQUE.SP (4) | DEFESA.SP (5)\n");
             scanf("%d", &atributo);
 
-            pkm_jogador1 = remove_fila(jog1);
-            pkm_jogador2 = remove_fila(jog2);
-            imprime_filatotal (jog1);
+            pkm_jogador1 = topo_fila(jog1);
+            pkm_jogador2 = topo_fila(jog2);
+            //imprime_filatotal (jog1);
             // Obtém o valor do atributo escolhido para ambos os jogadores
             switch (atributo) {
                 case 1:
                     valorAtributo1 = pkm_jogador1->hp;
                     valorAtributo2 = pkm_jogador2->hp;
+                    printf ("Atributo escolhido: HP %d \n", pkm_jogador2->hp);
+
                     break;
                 case 2:
                     valorAtributo1 = pkm_jogador1->atk;
                     valorAtributo2 = pkm_jogador2->atk;
+                    printf ("Atributo escolhido: ATK %d \n", pkm_jogador1->atk);
                     break;
                 case 3:
                     valorAtributo1 = pkm_jogador1->def;
                     valorAtributo2 = pkm_jogador2->def;
+                    printf ("Atributo escolhido: DEF %d \n", pkm_jogador1->def);
                     break;
                 case 4:
                     valorAtributo1 = pkm_jogador1->sp_atk;
                     valorAtributo2 = pkm_jogador2->sp_atk;
+                    printf ("Atributo escolhido: SP.ATK %d \n", pkm_jogador1->sp_atk);
                     break;
                 case 5:
                     valorAtributo1 = pkm_jogador1->sp_def;
                     valorAtributo2 = pkm_jogador2->sp_def;
+                    printf ("Atributo escolhido: SP.DEF %d \n", pkm_jogador1->sp_def);
                     break;
                 default:
                     printf("Atributo inválido.\n");
@@ -393,35 +409,41 @@ void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2) {
             }
 
         } else { // Jogador 2
+            imprime_fila(jog2);
             printf("Jogador 2 escolhendo seu atributo...\n");
-            //printf ("ANTES DE RETIRAR\n");
-            //imprime_filatotal(jog2);
-            pkm_jogador1 = remove_fila(jog1); 
-            pkm_jogador2 = remove_fila(jog2); 
-            //printf ("DEPOIS DE RETIRAR\n");
-            //imprime_filatotal(jog2);
+            //printf ("Atributo escolhido: ");
+            pkm_jogador1 = topo_fila(jog1); 
+            pkm_jogador2 = topo_fila(jog2);
+            printf ("Fila jogador 2\n");
+            imprime_fila(jog2);
             // pc escolhe atributo aleatorio
             atributo = rand() % 5 + 1;
             switch (atributo) {
                 case 1:
                     valorAtributo1 = pkm_jogador1->hp;
                     valorAtributo2 = pkm_jogador2->hp;
+                    printf ("Atributo escolhido: HP %d \n", pkm_jogador2->hp);
+
                     break;
                 case 2:
                     valorAtributo1 = pkm_jogador1->atk;
                     valorAtributo2 = pkm_jogador2->atk;
+                    printf ("Atributo escolhido: ATK %d \n", pkm_jogador2->atk);
                     break;
                 case 3:
                     valorAtributo1 = pkm_jogador1->def;
                     valorAtributo2 = pkm_jogador2->def;
+                    printf ("Atributo escolhido: DEF %d \n", pkm_jogador2->def);
                     break;
                 case 4:
                     valorAtributo1 = pkm_jogador1->sp_atk;
                     valorAtributo2 = pkm_jogador2->sp_atk;
+                    printf ("Atributo escolhido: SP.ATK %d \n", pkm_jogador2->sp_atk);
                     break;
                 case 5:
                     valorAtributo1 = pkm_jogador1->sp_def;
                     valorAtributo2 = pkm_jogador2->sp_def;
+                    printf ("Atributo escolhido: SP.DEF %d \n", pkm_jogador2->sp_def);
                     break;
                 default:
                     printf("Atributo inválido.\n");
@@ -434,6 +456,8 @@ void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2) {
         if (valorAtributo1 > valorAtributo2) { // Jogador 1 ganha
             printf("Jogador 1 venceu esta batalha! O Pokemon %s do Jogador 2 passa para o Jogador 1!\n", pkm_jogador2->name);
             insere_fila(jog1, pkm_jogador2); // Adiciona o Pokémon do Jogador 2 na fila do Jogador 1
+            remove_fila(jog2);
+            imprime_filatotal(jog1); // DEPURACAO
             printf ("Insira 1 para prosseguir...");
             scanf ("%d", &continuar);
             if (continuar == 1) {
@@ -445,6 +469,8 @@ void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2) {
         } else if (valorAtributo2 > valorAtributo1) { // Jogador 2 ganha
             printf("Jogador 2 venceu esta batalha! O Pokemon %s do Jogador 1 passa para o Jogador 2!\n", pkm_jogador1->name);
             insere_fila(jog2, pkm_jogador1); // Adiciona o Pokémon do Jogador 1 na fila do Jogador 2
+            remove_fila(jog1);
+            imprime_filatotal(jog2); // DEPURACAO
             printf ("Insira 1 para prosseguir...");
             scanf ("%d", &continuar);
             if (continuar == 1) {
