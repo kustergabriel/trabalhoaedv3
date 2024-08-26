@@ -44,21 +44,22 @@ typedef struct fila {
 } Fila;
 
 // funções
-Lista2* openarq(); 
-Lista2* insere(Lista2* l, Pokedex p); 
-void imprime_Pokedex(Lista2* l); 
+Lista2* openarq();
+Lista2* insere(Lista2* l, Pokedex p);
+void imprime_Pokedex(Lista2* l);
 void busca_pokedex(Lista2* l);
 void geravalores(int valores[]);
 void liberar_lista(Lista2* l);
 void libera_fila(Fila* f);
 Fila* cria_fila();
-void insere_fila(Fila* f, Pokedex* pokemon);
-Pokedex* remove_fila(Fila* f);
-int fila_vazia(Fila* f);
 void imprime_fila(Fila* f);
 void EmbaralhaEInsere(Lista2* lista, Fila* f, int valores[]);
-void transferefilaParaFilas(Fila* fila, Lista2 *lista, Fila* jog1, Fila* jog2);
-void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2);
+void transferefilaParaFilas(Fila* fila, Lista2* lista, Fila* jog1, Fila* jog2);
+void imprime_fila_jogador(Fila* f, int fila_num);
+int queminiciabatalha(Fila* jog1, Fila* jog2);
+void batalhaaaaa(Lista2* l, Fila* jog1, Fila* jog2);
+Pokedex* remove_fila(Fila* f);
+void insere_fila(Fila* f, Pokedex* pokemon);
 
 int main() {
     // variáveis
@@ -84,7 +85,7 @@ int main() {
 
     batalhaaaaa(lista, filajog1, filajog2);
 
-    liberar_lista(lista);
+   // liberar_lista(lista);
     libera_fila(fila);
     libera_fila(filajog1);
     libera_fila(filajog2);
@@ -104,14 +105,13 @@ Lista2* openarq() {
     char linha[500]; // tamanho máximo de cada linha
     Lista2* lista = NULL;
 
-    // lê linha por linha do arquivo
+    // le linha por linha do arquivo
     while (fgets(linha, sizeof(linha), arq)) {
         Pokedex p; // Estrutura para armazenar dados do Pokémon
         char* token = strtok(linha, ",");
 
         if (token) {
             p.num_Pokedex = atoi(token);
-
             token = strtok(NULL, ",");
             if (token) {
                 strncpy(p.name, token, NAMES - 1);
@@ -193,12 +193,13 @@ Lista2* insere(Lista2* l, Pokedex p) {
     Lista2* novo = (Lista2*) malloc(sizeof(Lista2));
     if (!novo) {
         printf("Erro ao alocar memória!\n");
-        exit(1); 
+        exit(1);
     }
     novo->info = p;
     novo->prox = l;
     novo->ant = NULL;
-    
+
+    // verifica se lista não está vazia
     if (l != NULL) {
         l->ant = novo;
     }
@@ -209,7 +210,7 @@ void imprime_Pokedex(Lista2* l) {
     Lista2* p;
     for (p = l; p != NULL; p = p->prox) {
         printf("Num: %d, Name: %s, Type1: %s, Type2: %s, Total: %d, HP: %d, Atk: %d, Def: %d, Sp.Atk: %d, Sp.Def: %d, Speed: %d, Generation: %d, Legendary: %s\n",
-            p->info.num_Pokedex, p->info.name, p->info.type1, p->info.type2, p->info.all, p->info.hp, p->info.atk, p->info.def, p->info.sp_atk, p->info.sp_def, p->info.speed, p->info.generation, p->info.legendary);
+               p->info.num_Pokedex, p->info.name, p->info.type1, p->info.type2, p->info.all, p->info.hp, p->info.atk, p->info.def, p->info.sp_atk, p->info.sp_def, p->info.speed, p->info.generation, p->info.legendary);
     }
 }
 
@@ -225,7 +226,7 @@ void busca_pokedex(Lista2* l) {
         if (strcasecmp(p->info.name, nomepokemon) == 0) {
             printf("Pokemon encontrado!\n");
             printf("Num: %d, Name: %s, Type1: %s, Type2: %s, Total: %d, HP: %d, Atk: %d, Def: %d, Sp.Atk: %d, Sp.Def: %d, Speed: %d, Generation: %d, Legendary: %s",
-                p->info.num_Pokedex, p->info.name, p->info.type1, p->info.type2, p->info.all, p->info.hp, p->info.atk, p->info.def, p->info.sp_atk, p->info.sp_def, p->info.speed, p->info.generation, p->info.legendary);
+                   p->info.num_Pokedex, p->info.name, p->info.type1, p->info.type2, p->info.all, p->info.hp, p->info.atk, p->info.def, p->info.sp_atk, p->info.sp_def, p->info.speed, p->info.generation, p->info.legendary);
             encontrado = 1;
             return;
         }
@@ -237,43 +238,57 @@ void busca_pokedex(Lista2* l) {
 
 // gera indices para as cartas aleatorios
 void geravalores(int valores[]) {
-    srand(time(NULL));  
+    srand(time(NULL));
     for (int i = 0; i < NUM_VALORES; i++) {
         valores[i] = rand() % 802;  // Gera um número aleatório entre 0 e 801
     }
 }
 
-// pega os valores e verifica quais sao os pokemons do arquivo
+// pega os valores e verifica quais sao na pokedex
 void EmbaralhaEInsere(Lista2* lista, Fila* f, int valores[]) {
     geravalores(valores);
-    Lista2* p = lista;
-    int inseridos = 0;
 
-    while (p != NULL && inseridos < NUM_VALORES) {
-        for (int i = 0; i < NUM_VALORES; i++) {
+    for (int i = 0; i < NUM_VALORES; i++) {
+        Lista2* p = lista;
+        while (p != NULL) {
             if (p->info.num_Pokedex == valores[i]) {
-                insere_fila(f, &p->info);
-                inseridos++;
+                insere_fila(f, &(p->info));
                 break;
             }
+            p = p->prox;
         }
-        p = p->prox;
     }
 }
 
-// criação da fila
 Fila* cria_fila() {
     Fila* f = (Fila*) malloc(sizeof(Fila));
-    f->ini = f->fim = NULL;
+    if (!f) {
+        printf("Erro ao criar fila!\n");
+        exit(1);
+    }
+    f->ini = NULL;
+    f->fim = NULL;
     return f;
 }
 
-// insere no fim da fila
+void libera_fila(Fila* f) {
+    while (f->ini != NULL) {
+        ElemFila* t = f->ini;
+        f->ini = f->ini->prox;
+        free(t);
+    }
+    free(f);
+}
+
 void insere_fila(Fila* f, Pokedex* pokemon) {
     ElemFila* novo = (ElemFila*) malloc(sizeof(ElemFila));
+    if (!novo) {
+        printf("Erro ao alocar memória!\n");
+        exit(1);
+    }
     novo->pokemon = pokemon;
     novo->prox = NULL;
-    
+
     if (f->fim != NULL) {
         f->fim->prox = novo;
     } else {
@@ -282,16 +297,16 @@ void insere_fila(Fila* f, Pokedex* pokemon) {
     f->fim = novo;
 }
 
-// remove do inicio da fila
 Pokedex* remove_fila(Fila* f) {
     if (f->ini == NULL) {
+        printf("Fila vazia!\n");
         return NULL;
     }
 
     ElemFila* t = f->ini;
     Pokedex* pokemon = t->pokemon;
     f->ini = t->prox;
-    
+
     if (f->ini == NULL) {
         f->fim = NULL;
     }
@@ -300,117 +315,159 @@ Pokedex* remove_fila(Fila* f) {
     return pokemon;
 }
 
-// verifica se a fila está vazia
-int fila_vazia(Fila* f) {
-    return (f->ini == NULL);
-}
-
-// libera fila
-void libera_fila(Fila* f) {
-    ElemFila* q = f->ini;
-    while (q != NULL) {
-        ElemFila* t = q->prox;
-        free(q);
-        q = t;
-    }
-    free(f);
-}
-
-// imprime os pokemons da fila
-void imprime_fila(Fila* f) {
-    ElemFila* q = f->ini;
-    while (q != NULL) {
-        printf("Num: %d, Name: %s\n", q->pokemon->num_Pokedex, q->pokemon->name);
-        q = q->prox;
-    }
-}
-
-// transfere pokemons da fila para os jogadores
-void transferefilaParaFilas(Fila* fila, Lista2 *lista, Fila* jog1, Fila* jog2) {
-    int contador = 0;
-    Pokedex* p;
-    while ((p = remove_fila(fila)) != NULL) {
-        if (contador % 2 == 0) {
-            insere_fila(jog1, p);
+// transfere elementos da fila principal para as filas dos jogadores
+void transferefilaParaFilas(Fila* fila, Lista2* lista, Fila* jog1, Fila* jog2) {
+    int i = 0;
+    while (fila->ini != NULL) {
+        Pokedex* pkm = remove_fila(fila);
+        if (i % 2 == 0) {
+            insere_fila(jog1, pkm);
         } else {
-            insere_fila(jog2, p);
+            insere_fila(jog2, pkm);
         }
-        contador++;
+        i++;
     }
 }
 
-// parte da batalha
+// imprime a fila
+void imprime_fila(Fila* f) {
+    ElemFila* t = f->ini;
+        printf("Nro Pokedex: %d | Nome: %s | Hp: %d | Ataque: %d | Defesa: %d | Ataque Esp: %d | Defesa Esp: %d |\n", t->pokemon->num_Pokedex, t->pokemon->name,t->pokemon->hp,t->pokemon->atk,t->pokemon->def,t->pokemon->sp_atk,t->pokemon->sp_def);
+}
+void imprime_filatotal(Fila* f) {
+    ElemFila* t = f->ini;
+    while (t != NULL) {
+        printf("Num: %d, Name: %s\n", t->pokemon->num_Pokedex, t->pokemon->name);
+        t = t->prox;
+    }
+}
+
+// função de batalha
 void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2) {
     int atributo = 0;
     Pokedex* pkm_jogador1 = NULL;
     Pokedex* pkm_jogador2 = NULL;
     int valorAtributo1 = 0, valorAtributo2 = 0;
     int rodadas = 1;
+    int jogadorSorteado;
+    int continuar = 0;
 
-    while (!fila_vazia(jog1) && !fila_vazia(jog2)) {
-        printf("Round %d\n", rodadas);
+    while (jog1->ini != NULL && jog2->ini != NULL) { // loop para continuar até que um jogador tenha a fila vazia
+        jogadorSorteado = rand() % 2; // 0 para Jogador 1, 1 para Jogador 2
+        printf("Rodada %d\n", rodadas);
+        
+        if (jogadorSorteado == 0) { // jogador 1
+            imprime_fila(jog1);
+            printf("Com qual atributo voce deseja jogar?\n");
+            printf("HP (1) | ATAQUE (2) | DEFESA (3) | ATAQUE.SP (4) | DEFESA.SP (5)\n");
+            scanf("%d", &atributo);
 
-        pkm_jogador1 = remove_fila(jog1);
-        pkm_jogador2 = remove_fila(jog2);
+            pkm_jogador1 = remove_fila(jog1);
+            pkm_jogador2 = remove_fila(jog2);
+            imprime_filatotal (jog1);
+            // Obtém o valor do atributo escolhido para ambos os jogadores
+            switch (atributo) {
+                case 1:
+                    valorAtributo1 = pkm_jogador1->hp;
+                    valorAtributo2 = pkm_jogador2->hp;
+                    break;
+                case 2:
+                    valorAtributo1 = pkm_jogador1->atk;
+                    valorAtributo2 = pkm_jogador2->atk;
+                    break;
+                case 3:
+                    valorAtributo1 = pkm_jogador1->def;
+                    valorAtributo2 = pkm_jogador2->def;
+                    break;
+                case 4:
+                    valorAtributo1 = pkm_jogador1->sp_atk;
+                    valorAtributo2 = pkm_jogador2->sp_atk;
+                    break;
+                case 5:
+                    valorAtributo1 = pkm_jogador1->sp_def;
+                    valorAtributo2 = pkm_jogador2->sp_def;
+                    break;
+                default:
+                    printf("Atributo inválido.\n");
+                    return;
+            }
 
-        // Escolher atributo aleatório
-        atributo = rand() % 6;
-
-        switch (atributo) {
-            case 0:
-                valorAtributo1 = pkm_jogador1->atk;
-                valorAtributo2 = pkm_jogador2->atk;
-                printf("Comparando ATK\n");
-                break;
-            case 1:
-                valorAtributo1 = pkm_jogador1->def;
-                valorAtributo2 = pkm_jogador2->def;
-                printf("Comparando DEF\n");
-                break;
-            case 2:
-                valorAtributo1 = pkm_jogador1->hp;
-                valorAtributo2 = pkm_jogador2->hp;
-                printf("Comparando HP\n");
-                break;
-            case 3:
-                valorAtributo1 = pkm_jogador1->sp_atk;
-                valorAtributo2 = pkm_jogador2->sp_atk;
-                printf("Comparando SP_ATK\n");
-                break;
-            case 4:
-                valorAtributo1 = pkm_jogador1->sp_def;
-                valorAtributo2 = pkm_jogador2->sp_def;
-                printf("Comparando SP_DEF\n");
-                break;
-            case 5:
-                valorAtributo1 = pkm_jogador1->speed;
-                valorAtributo2 = pkm_jogador2->speed;
-                printf("Comparando SPEED\n");
-                break;
+        } else { // Jogador 2
+            printf("Jogador 2 escolhendo seu atributo...\n");
+            //printf ("ANTES DE RETIRAR\n");
+            //imprime_filatotal(jog2);
+            pkm_jogador1 = remove_fila(jog1); 
+            pkm_jogador2 = remove_fila(jog2); 
+            //printf ("DEPOIS DE RETIRAR\n");
+            //imprime_filatotal(jog2);
+            // pc escolhe atributo aleatorio
+            atributo = rand() % 5 + 1;
+            switch (atributo) {
+                case 1:
+                    valorAtributo1 = pkm_jogador1->hp;
+                    valorAtributo2 = pkm_jogador2->hp;
+                    break;
+                case 2:
+                    valorAtributo1 = pkm_jogador1->atk;
+                    valorAtributo2 = pkm_jogador2->atk;
+                    break;
+                case 3:
+                    valorAtributo1 = pkm_jogador1->def;
+                    valorAtributo2 = pkm_jogador2->def;
+                    break;
+                case 4:
+                    valorAtributo1 = pkm_jogador1->sp_atk;
+                    valorAtributo2 = pkm_jogador2->sp_atk;
+                    break;
+                case 5:
+                    valorAtributo1 = pkm_jogador1->sp_def;
+                    valorAtributo2 = pkm_jogador2->sp_def;
+                    break;
+                default:
+                    printf("Atributo inválido.\n");
+                    return;
+            }
         }
 
-        // Determinar o vencedor
-        if (valorAtributo1 > valorAtributo2) {
-            printf("Jogador 1 venceu a rodada!\n");
-            insere_fila(jog1, pkm_jogador1);
-            insere_fila(jog1, pkm_jogador2);
-        } else if (valorAtributo1 < valorAtributo2) {
-            printf("Jogador 2 venceu a rodada!\n");
-            insere_fila(jog2, pkm_jogador1);
-            insere_fila(jog2, pkm_jogador2);
-        } else {
-            printf("Empate na rodada! Ambos os pokemons retornam à fila de seus jogadores.\n");
+
+        // Determina o vencedor da rodada
+        if (valorAtributo1 > valorAtributo2) { // Jogador 1 ganha
+            printf("Jogador 1 venceu esta batalha! O Pokemon %s do Jogador 2 passa para o Jogador 1!\n", pkm_jogador2->name);
+            insere_fila(jog1, pkm_jogador2); // Adiciona o Pokémon do Jogador 2 na fila do Jogador 1
+            printf ("Insira 1 para prosseguir...");
+            scanf ("%d", &continuar);
+            if (continuar == 1) {
+                printf("\n\n");
+            } else {
+                printf ("Jogo encerrado!!");
+                return 0;
+            }
+        } else if (valorAtributo2 > valorAtributo1) { // Jogador 2 ganha
+            printf("Jogador 2 venceu esta batalha! O Pokemon %s do Jogador 1 passa para o Jogador 2!\n", pkm_jogador1->name);
+            insere_fila(jog2, pkm_jogador1); // Adiciona o Pokémon do Jogador 1 na fila do Jogador 2
+            printf ("Insira 1 para prosseguir...");
+            scanf ("%d", &continuar);
+            if (continuar == 1) {
+                printf("\n\n");
+            } else {
+                printf ("Jogo encerrado!!");
+                return 0;
+            }
+        } else { // Empate
+            printf("Empate! Nenhuma carta eh transferida.\n");
+            // Os Pokémons vão para o final da fila do mesmo jogador
             insere_fila(jog1, pkm_jogador1);
             insere_fila(jog2, pkm_jogador2);
         }
-
         rodadas++;
     }
 
-    // Verificar quem é o vencedor
-    if (fila_vazia(jog1)) {
-        printf("Jogador 2 venceu a batalha!\n");
-    } else if (fila_vazia(jog2)) {
-        printf("Jogador 1 venceu a batalha!\n");
+    // Verifica o vencedor final
+    if (jog1->ini == NULL) {
+        printf("Jogador 2 é o vencedor!!!!\n");
+        imprime_fila(jog2);
+    } else if (jog2->ini == NULL) {
+        printf("Jogador 1 é o vencedor!!!!\n");
+        imprime_fila(jog1);
     }
 }
