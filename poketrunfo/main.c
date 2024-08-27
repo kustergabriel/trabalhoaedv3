@@ -68,29 +68,50 @@ int main() {
     int valores[NUM_VALORES];
     Fila* filajog1 = cria_fila();
     Fila* filajog2 = cria_fila();
-
-
-    printf ("\t BEM VINDO(A) AO POKETRUNFO DUSGURI\n");
-    printf ("INSIRA QUALQUER TECLA PARA INICIAR...\n");
-
+    int telaload = 0;
     // abre o arquivo e preenche a lista
-    lista = openarq();
-
-    // busca pokemon na pokedex
-    busca_pokedex(lista);
-
+    lista = openarq(); 
     // inserindo os pokemons para a fila
     EmbaralhaEInsere(lista, fila, valores);
-
     // transferindo para as filas dos jogadores
     transferefilaParaFilas(fila, lista, filajog1, filajog2);
 
-    batalhaaaaa(filajog1, filajog2);
+        printf("\n===================================================\n");
+        printf("\t BEM VINDO(A) AO POKETRUNFO DUSGURI");
+        printf("\n===================================================\n");
 
+    while (telaload != 10) {
+        printf("\n");
+        printf("\t ESCOLHA UMA ALTERNATIVA!!\n\n");
+        printf("\t INICIAR JOGO (0)\n");
+        printf("\t CONSULTA POKEDEX (1)\n");
+        printf("\t SAIR DO JOGO (10)\n");
+        scanf("%d", &telaload);
 
+        switch (telaload) {
+            case 0:
+                batalhaaaaa(filajog1, filajog2);
+                break;
 
+            case 1:
+                busca_pokedex(lista);
+                break;
 
+            case 2:
+                printf ("NAO TEM NADA AQUI!!!!!");
+                exit (0);
+                break;
 
+                case 10:
+                exit (0);
+                break;
+
+            default:
+                printf("Digita outro numero guri!!!\n");
+                break;
+        }
+    }
+ 
 
     // liberar_lista(lista);
     libera_fila(fila);
@@ -485,7 +506,7 @@ void batalhaaaaa(Fila *jog1, Fila *jog2) {
             printf ("FILA JOGADOR 1\n");
             imprime_filatotal(jog2); // DEPURACAO
             printf ("FILA JOGADOR 2\n");
-            printf ("\nInsira 1 para prosseguir...");
+            printf ("\nInsira 1 para prosseguir... ");
             scanf ("%d", &continuar);
             if (continuar == 1) {
                 printf("\t");
@@ -508,7 +529,7 @@ void batalhaaaaa(Fila *jog1, Fila *jog2) {
             printf ("FILA JOGADOR 1\n");
             imprime_filatotal(jog2); // DEPURACAO
             printf ("FILA JOGADOR 2\n");
-            printf ("\nInsira 1 para prosseguir...");
+            printf ("\nInsira 1 para prosseguir... ");
             scanf ("%d", &continuar);
             if (continuar == 1) {
                 printf("\t");
@@ -651,10 +672,13 @@ void batalhaaaaa(Fila *jog1, Fila *jog2) {
 
     // Verifica o vencedor final
     if (jog1->ini == NULL) {
-        printf("Jogador 2 eh o vencedor!!!!\n");
-        imprime_filatotal(jog2);
+        printf("\n\nJogador 2 eh o vencedor!!!!\n\n");
+        printf ("FILHA GANHADORA ");
+        imprime_filatotal(jog2); 
+
     } else if (jog2->ini == NULL) {
-        printf("Jogador 1 eh o vencedor!!!!\n");
+        printf("\n\nJogador 1 eh o vencedor!!!!\n\n");
+        printf ("FILHA GANHADORA ");
         imprime_filatotal(jog1);
     }
 }
