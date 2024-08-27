@@ -94,7 +94,7 @@ int main() {
 }
 
 Lista2* openarq() {
-    FILE *arq = fopen("/Users/Gabriel Azevedo/Documents/GitHub/trabalhoaedv3/poketrunfo/pokemon.csv", "rt"); // Use o caminho relativo para o arquivo
+    FILE *arq = fopen("pokemon.csv", "rt"); // Use o caminho relativo para o arquivo
 
     if (arq == NULL) {
         printf("Problemas na abertura do arquivo!\n");
@@ -339,14 +339,20 @@ Pokedex* topo_fila(Fila* f) {
 
 
 // imprime a fila
-void imprime_fila(Fila* f) {
+/*void imprime_fila(Fila* f) {
     ElemFila* t = f->ini;
         printf("Nro Pokedex: %d | Nome: %s | Hp: %d | Ataque: %d | Defesa: %d | Ataque Esp: %d | Defesa Esp: %d |\n", t->pokemon->num_Pokedex, t->pokemon->name,t->pokemon->hp,t->pokemon->atk,t->pokemon->def,t->pokemon->sp_atk,t->pokemon->sp_def);
+}*/
+
+void imprime_fila(Fila* f) {
+    ElemFila* t = f->ini;
+        printf("Nro Pokedex: %d \n", t->pokemon->num_Pokedex);
 }
+
 void imprime_filatotal(Fila* f) {
     ElemFila* t = f->ini;
     while (t != NULL) {
-        printf("Num: %d, Name: %s\n", t->pokemon->num_Pokedex, t->pokemon->name);
+        printf("Num: %d | ", t->pokemon->num_Pokedex);
         t = t->prox;
     }
 }
@@ -367,7 +373,7 @@ void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2) {
         
         if (jogadorSorteado == 0) { // jogador 1
             printf ("Fila jogador 1\n");
-            imprime_fila(jog1);
+            imprime_filatotal(jog1);
             printf("Com qual atributo voce deseja jogar?\n");
             printf("HP (1) | ATAQUE (2) | DEFESA (3) | ATAQUE.SP (4) | DEFESA.SP (5)\n");
             scanf("%d", &atributo);
@@ -414,8 +420,6 @@ void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2) {
             //printf ("Atributo escolhido: ");
             pkm_jogador1 = topo_fila(jog1); 
             pkm_jogador2 = topo_fila(jog2);
-            printf ("Fila jogador 2\n");
-            imprime_fila(jog2);
             // pc escolhe atributo aleatorio
             atributo = rand() % 5 + 1;
             switch (atributo) {
@@ -464,7 +468,7 @@ void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2) {
                 printf("\n\n");
             } else {
                 printf ("Jogo encerrado!!");
-                return 0;
+                return ;
             }
         } else if (valorAtributo2 > valorAtributo1) { // Jogador 2 ganha
             printf("Jogador 2 venceu esta batalha! O Pokemon %s do Jogador 1 passa para o Jogador 2!\n", pkm_jogador1->name);
@@ -477,7 +481,7 @@ void batalhaaaaa(Lista2 *l, Fila *jog1, Fila *jog2) {
                 printf("\n\n");
             } else {
                 printf ("Jogo encerrado!!");
-                return 0;
+                return ;
             }
         } else { // Empate
             printf("Empate! Nenhuma carta eh transferida.\n");
