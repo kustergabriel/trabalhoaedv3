@@ -69,23 +69,30 @@ int main() {
     Fila* filajog1 = cria_fila();
     Fila* filajog2 = cria_fila();
 
+
+    printf ("\t BEM VINDO(A) AO POKETRUNFO DUSGURI\n");
+    printf ("INSIRA QUALQUER TECLA PARA INICIAR...\n");
+
     // abre o arquivo e preenche a lista
     lista = openarq();
 
     // busca pokemon na pokedex
-    //busca_pokedex(lista);
+    busca_pokedex(lista);
 
     // inserindo os pokemons para a fila
     EmbaralhaEInsere(lista, fila, valores);
 
     // transferindo para as filas dos jogadores
     transferefilaParaFilas(fila, lista, filajog1, filajog2);
-    printf("BEM VINDO(A) AO POKETRUNFO\n");
-    printf("Batalha iniciada\n");
 
     batalhaaaaa(filajog1, filajog2);
 
-   // liberar_lista(lista);
+
+
+
+
+
+    // liberar_lista(lista);
     libera_fila(fila);
     libera_fila(filajog1);
     libera_fila(filajog2);
