@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "poketrunfo.h"
 
 // defines
 #define NAMES 50
 #define MAX 50
 #define NUM_VALORES 10
 
-// structs
-typedef struct {
+typedef struct pokedex {
     int num_Pokedex;
     char name[NAMES];
     char type1[NAMES];
@@ -25,14 +25,15 @@ typedef struct {
     char legendary[NAMES];
 } Pokedex;
 
-//  lista
+// lista duplamente encadeada
 typedef struct lista2 {
-    Pokedex info;
+    Pokedex info; 
     struct lista2* ant;
     struct lista2* prox;
 } Lista2;
 
-// fila
+
+// pokemon ponteiro para pokedex
 typedef struct elem {
     Pokedex* pokemon;
     struct elem* prox;
@@ -42,84 +43,6 @@ typedef struct fila {
     ElemFila* ini;
     ElemFila* fim;
 } Fila;
-
-// funções
-Lista2* openarq();
-Lista2* insere(Lista2* l, Pokedex p);
-void imprime_Pokedex(Lista2* l);
-void busca_pokedex(Lista2* l);
-void geravalores(int valores[]);
-void liberar_lista(Lista2* l);
-void libera_fila(Fila* f);
-Fila* cria_fila();
-void imprime_fila(Fila* f);
-void EmbaralhaEInsere(Lista2* lista, Fila* f, int valores[]);
-void transferefilaParaFilas(Fila* fila, Lista2* lista, Fila* jog1, Fila* jog2);
-void imprime_fila_jogador(Fila* f, int fila_num);
-int queminiciabatalha(Fila* jog1, Fila* jog2);
-void batalhaaaaa(Fila *jog1, Fila *jog2);
-Pokedex* remove_fila(Fila* f);
-void insere_fila(Fila* f, Pokedex* pokemon);
-
-int main() {
-    // variáveis
-    Lista2* lista = NULL;
-    Fila* fila = cria_fila();
-    int valores[NUM_VALORES];
-    Fila* filajog1 = cria_fila();
-    Fila* filajog2 = cria_fila();
-    int telaload = 0;
-    // abre o arquivo e preenche a lista
-    lista = openarq(); 
-    // inserindo os pokemons para a fila
-    EmbaralhaEInsere(lista, fila, valores);
-    // transferindo para as filas dos jogadores
-    transferefilaParaFilas(fila, lista, filajog1, filajog2);
-
-        printf("\n===================================================\n");
-        printf("\t BEM VINDO(A) AO POKETRUNFO DUSGURI");
-        printf("\n===================================================\n");
-
-    while (telaload != 10) {
-        printf("\n");
-        printf("\t ESCOLHA UMA ALTERNATIVA!!\n\n");
-        printf("\t INICIAR JOGO (0)\n");
-        printf("\t CONSULTA POKEDEX (1)\n");
-        printf("\t SAIR DO JOGO (10)\n");
-        scanf("%d", &telaload);
-
-        switch (telaload) {
-            case 0:
-                batalhaaaaa(filajog1, filajog2);
-                break;
-
-            case 1:
-                busca_pokedex(lista);
-                break;
-
-            case 2:
-                printf ("NAO TEM NADA AQUI!!!!!");
-                exit (0);
-                break;
-
-                case 10:
-                exit (0);
-                break;
-
-            default:
-                printf("Digita outro numero guri!!!\n");
-                break;
-        }
-    }
- 
-
-    // liberar_lista(lista);
-    libera_fila(fila);
-    libera_fila(filajog1);
-    libera_fila(filajog2);
-
-    return 0;
-}
 
 Lista2* openarq() {
     FILE *arq = fopen("pokemon.csv", "rt"); // Use o caminho relativo para o arquivo
@@ -344,7 +267,7 @@ Pokedex* remove_fila(Fila* f) {
 }
 
 // transfere elementos da fila principal para as filas dos jogadores
-void transferefilaParaFilas(Fila* fila, Lista2* lista, Fila* jog1, Fila* jog2) {
+void transferefilaParaFilas(Fila* fila, Fila* jog1, Fila* jog2) {
     int i = 0;
     while (fila->ini != NULL) {
         Pokedex* pkm = remove_fila(fila);
@@ -356,6 +279,7 @@ void transferefilaParaFilas(Fila* fila, Lista2* lista, Fila* jog1, Fila* jog2) {
         i++;
     }
 }
+
 Pokedex* topo_fila(Fila* f) {
     if (f->ini == NULL) {
         printf("Fila vazia!\n");
@@ -364,7 +288,6 @@ Pokedex* topo_fila(Fila* f) {
     // O ponteiro 'ini' aponta para o primeiro elemento da fila
     return f->ini->pokemon;
 }
-
 
 // imprime a fila
 void imprime_fila(Fila* f) {
