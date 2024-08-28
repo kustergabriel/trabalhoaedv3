@@ -284,8 +284,8 @@ void EmbaralhaEInsere(Lista2* lista, Pilha* p, int valores[]) {
     geravalores(valores);
 
     for (int i = 0; i < NUM_VALORES; i++) {
-        Lista2* aux = lista;
-        while (aux != NULL) {
+        Lista2* aux = lista; 
+        while (aux != NULL) { 
             if (aux->info.num_Pokedex == valores[i]) {
                 empilha(p, &(aux->info)); // endereco
                 break;
