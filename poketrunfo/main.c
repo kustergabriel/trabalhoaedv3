@@ -43,6 +43,16 @@ typedef struct fila {
     ElemFila* fim;
 } Fila;
 
+// pilha
+typedef struct elemPilha {
+    Pokedex* pokemon;
+    struct elemPilha* prox;
+} ElemPilha;
+
+typedef struct pilha {
+    ElemPilha* topo;
+} Pilha;
+
 
 Lista2* openarq();
 Lista2* insere(Lista2* l, Pokedex p);
@@ -53,14 +63,16 @@ void liberar_lista(Lista2* l);
 void libera_fila(Fila* f);
 Fila* cria_fila();
 void imprime_fila(Fila* f);
-void EmbaralhaEInsere(Lista2* lista, Fila* f, int valores[]);
-void transferefilaParaFilas(Fila* fila, Fila* jog1, Fila* jog2);
+void EmbaralhaEInsere(Lista2* lista, Pilha* p, int valores[]);
+void transferePilhaParaFilas(Pilha* pilha, Fila* jog1, Fila* jog2);
 void imprime_fila_jogador(Fila* f, int fila_num);
 int queminiciabatalha(Fila* jog1, Fila* jog2);
 void batalhaaaaa(Fila *jog1, Fila *jog2);
 Pokedex* remove_fila(Fila* f);
 void insere_fila(Fila* f, Pokedex* pokemon);
-
+Pilha* cria_pilha();
+void empilha(Pilha* p, Pokedex* pokemon);
+Pokedex* desempilha(Pilha* p);
 
 int main() {
     // variáveis
@@ -69,13 +81,14 @@ int main() {
     int valores [NUM_VALORES];
     Fila* filajog1 = cria_fila();
     Fila* filajog2 = cria_fila();
+    Pilha* pilha = cria_pilha();
     int telaload = 0;
     // abre o arquivo e preenche a lista
     lista = openarq(); 
     // inserindo os pokemons para a fila
-    EmbaralhaEInsere(lista, fila, valores);
+    EmbaralhaEInsere(lista, pilha, valores);
     // transferindo para as filas dos jogadores
-    transferefilaParaFilas(fila, filajog1, filajog2);
+    transferePilhaParaFilas(pilha, filajog1, filajog2);
 
         printf("\n===================================================\n");
         printf("\t BEM VINDO(A) AO POKETRUNFO DUSGURI");
@@ -276,17 +289,17 @@ void geravalores(int valores[]) {
 }
 
 // pega os valores e verifica quais sao na pokedex
-void EmbaralhaEInsere(Lista2* lista, Fila* f, int valores[]) {
+void EmbaralhaEInsere(Lista2* lista, Pilha* p, int valores[]) {
     geravalores(valores);
 
     for (int i = 0; i < NUM_VALORES; i++) {
-        Lista2* p = lista;
-        while (p != NULL) {
-            if (p->info.num_Pokedex == valores[i]) {
-                insere_fila(f, &(p->info)); // pega a posicao da memoria e insere na fila
+        Lista2* aux = lista;
+        while (aux != NULL) {
+            if (aux->info.num_Pokedex == valores[i]) {
+                empilha(p, &(aux->info)); // endereco
                 break;
             }
-            p = p->prox;
+            aux = aux->prox;
         }
     }
 }
@@ -350,17 +363,22 @@ Pokedex* remove_fila(Fila* f) {
     return pokemon;
 }
 
-// transfere elementos da fila principal para as filas dos jogadores
-void transferefilaParaFilas(Fila* fila, Fila* jog1, Fila* jog2) {
+// transfere elementos da pilha principal para as filas dos jogadores
+void transferePilhaParaFilas(Pilha* pilha, Fila* jog1, Fila* jog2) {
     int i = 0;
-    while (fila->ini != NULL) {
-        Pokedex* pokemon = remove_fila(fila);
-        if (i % 2 == 0) {
-            insere_fila(jog1, pokemon);
-        } else {
-            insere_fila(jog2, pokemon);
+    
+    // enquanto ainda tem pokemons
+    while (pilha->topo != NULL) {
+        Pokedex* pokemon = desempilha(pilha);  
+        
+        if (pokemon != NULL) {
+            if (i % 2 == 0) {
+                insere_fila(jog1, pokemon);  
+            } else {
+                insere_fila(jog2, pokemon); 
+            }
+            i++;
         }
-        i++;
     }
 }
 
@@ -680,4 +698,37 @@ void batalhaaaaa(Fila *jog1, Fila *jog2) {
         printf ("FILHA GANHADORA ");
         imprime_filatotal(jog1);
     }
+}
+
+Pilha* cria_pilha() {
+    Pilha* p = (Pilha*)malloc(sizeof(Pilha));
+    if (!p) {
+        printf("Erro ao criar pilha!\n");
+        exit(1);
+    }
+    p->topo = NULL;
+    return p;
+}
+
+void empilha(Pilha* p, Pokedex* pokemon) {
+    ElemPilha* novo = (ElemPilha*)malloc(sizeof(ElemPilha));
+    if (!novo) {
+        printf("Erro ao alocar memória para pilha!\n");
+        exit(1);
+    }
+    novo->pokemon = pokemon;
+    novo->prox = p->topo;
+    p->topo = novo;
+}
+
+Pokedex* desempilha(Pilha* p) {
+    if (p->topo == NULL) {
+        printf("Pilha vazia!\n");
+        return NULL;
+    }
+    ElemPilha* t = p->topo;
+    Pokedex* pokemon = t->pokemon;
+    p->topo = t->prox;
+    free(t);
+    return pokemon;
 }
