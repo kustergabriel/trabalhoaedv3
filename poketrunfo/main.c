@@ -123,7 +123,7 @@ int main() {
 }
 
 Lista2* openarq() {
-    FILE *arq = fopen("/Meus Projetos/Trabalho Final AED1/trabalhoaedv3/poketrunfo/projeto final/output/pokemon.csv", "rt"); // Use o caminho relativo para o arquivo
+    FILE *arq = fopen("pokemon.csv", "rt"); // Use o caminho relativo para o arquivo
 
     if (arq == NULL) {
         printf("Problemas na abertura do arquivo!\n");
