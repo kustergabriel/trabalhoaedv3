@@ -304,6 +304,9 @@ void EmbaralhaEInsere(Lista2* lista, Pilha* p, int valores[]) {
     }
 }
 
+// filas
+
+
 // criar fila 
 Fila* cria_fila() {
     Fila* f = (Fila*) malloc(sizeof(Fila));
@@ -344,7 +347,7 @@ void insere_fila(Fila* f, Pokedex* pokemon) {
     f->fim = novo;
 }
 
-// 
+// remove elemento da fila
 Pokedex* remove_fila(Fila* f) {
     if (f->ini == NULL) {
         printf("Fila vazia!\n");
@@ -366,9 +369,8 @@ Pokedex* remove_fila(Fila* f) {
 // transfere elementos da pilha principal para as filas dos jogadores
 void transferePilhaParaFilas(Pilha* pilha, Fila* jog1, Fila* jog2) {
     int i = 0;
-    
-    // enquanto ainda tem pokemons
-    while (pilha->topo != NULL) {
+
+    while (pilha->topo != NULL) { // enquanto ainda tem pokemons
         Pokedex* pokemon = desempilha(pilha);  
         
         if (pokemon != NULL) {
@@ -388,17 +390,15 @@ Pokedex* topo_fila(Fila* f) {
         printf("Fila vazia!\n");
         return NULL;
     }
-    // O ponteiro 'ini' aponta para o primeiro elemento da fila
     return f->ini->pokemon;
 }
 
-// imprime a fila
+// impressao de fila
 void imprime_fila(Fila* f) {
     ElemFila* t = f->ini;
         printf("Nro Pokedex: %d | Nome: %s | Hp: %d | Ataque: %d | Defesa: %d | Ataque Esp: %d | Defesa Esp: %d |\n", t->pokemon->num_Pokedex, t->pokemon->name,t->pokemon->hp,t->pokemon->atk,t->pokemon->def,t->pokemon->sp_atk,t->pokemon->sp_def);
 }
 
-// 
 void imprime_filatotal(Fila* f) {
     ElemFila* t = f->ini;
     while (t != NULL) {
@@ -407,7 +407,43 @@ void imprime_filatotal(Fila* f) {
     }
 }
 
+// pilhas
+
+Pilha* cria_pilha() {
+    Pilha* p = (Pilha*)malloc(sizeof(Pilha));
+    if (!p) {
+        printf("Erro ao criar pilha!\n");
+        exit(1);
+    }
+    p->topo = NULL;
+    return p;
+}
+
+void empilha(Pilha* p, Pokedex* pokemon) {
+    ElemPilha* novo = (ElemPilha*)malloc(sizeof(ElemPilha));
+    if (!novo) {
+        printf("Erro ao alocar memória para pilha!\n");
+        exit(1);
+    }
+    novo->pokemon = pokemon;
+    novo->prox = p->topo;
+    p->topo = novo;
+}
+
+Pokedex* desempilha(Pilha* p) {
+    if (p->topo == NULL) {
+        printf("Pilha vazia!\n");
+        return NULL;
+    }
+    ElemPilha* t = p->topo;
+    Pokedex* pokemon = t->pokemon;
+    p->topo = t->prox;
+    free(t);
+    return pokemon;
+}
+
 // função de batalha
+
 void batalhaaaaa(Fila *jog1, Fila *jog2) {
     int atributo = 0;
     Pokedex* pkm_jogador1 = NULL;
@@ -420,7 +456,6 @@ void batalhaaaaa(Fila *jog1, Fila *jog2) {
 
     while (jog1->ini != NULL && jog2->ini != NULL) { // loop para continuar até que um jogador tenha a fila vazia
 
-        // FORMATACAO BONITINHO que gayyyy
         printf("\n====================================\n");
         printf("              Rodada %d\n", rodadas);
         printf("====================================\n\n");
@@ -439,7 +474,6 @@ void batalhaaaaa(Fila *jog1, Fila *jog2) {
             pkm_jogador1 = topo_fila(jog1); // pega a carta do topo da fila sem retirar
             pkm_jogador2 = topo_fila(jog2); // pega a carta do topo da fila sem retirar
             //imprime_filatotal (jog1);
-            // Obtém o valor do atributo escolhido para ambos os jogadores
             switch (atributo) {
                 case 1:
                     valorAtributo1 = pkm_jogador1->hp;
@@ -698,37 +732,4 @@ void batalhaaaaa(Fila *jog1, Fila *jog2) {
         printf ("FILHA GANHADORA ");
         imprime_filatotal(jog1);
     }
-}
-
-Pilha* cria_pilha() {
-    Pilha* p = (Pilha*)malloc(sizeof(Pilha));
-    if (!p) {
-        printf("Erro ao criar pilha!\n");
-        exit(1);
-    }
-    p->topo = NULL;
-    return p;
-}
-
-void empilha(Pilha* p, Pokedex* pokemon) {
-    ElemPilha* novo = (ElemPilha*)malloc(sizeof(ElemPilha));
-    if (!novo) {
-        printf("Erro ao alocar memória para pilha!\n");
-        exit(1);
-    }
-    novo->pokemon = pokemon;
-    novo->prox = p->topo;
-    p->topo = novo;
-}
-
-Pokedex* desempilha(Pilha* p) {
-    if (p->topo == NULL) {
-        printf("Pilha vazia!\n");
-        return NULL;
-    }
-    ElemPilha* t = p->topo;
-    Pokedex* pokemon = t->pokemon;
-    p->topo = t->prox;
-    free(t);
-    return pokemon;
 }
