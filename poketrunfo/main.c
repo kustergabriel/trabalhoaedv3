@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdbool.h>
 
 // defines
 #define NAMES 50
@@ -444,11 +445,36 @@ void batalhaaaaa(Fila *jog1, Fila *jog2) {
     int continuar = 0;
     Fila* filauxempate = cria_fila();
 
+
     while (jog1->ini != NULL && jog2->ini != NULL) { // loop para continuar ate que um jogador tenha a fila vazia
 
         printf("\n====================================\n");
         printf("              Rodada %d\n", rodadas);
         printf("====================================\n\n");
+
+    pkm_jogador1 = topo_fila(jog1); // pega a carta do topo da fila sem retirar
+    pkm_jogador2 = topo_fila(jog2); // pega a carta do topo da fila sem retirar
+
+// verificar se o pokemon eh lendario
+    if (strcmp(pkm_jogador1->legendary, "True") || strcmp(pkm_jogador2->legendary, "True")) {
+        if (strcmp(pkm_jogador1->legendary, "True")) {
+            printf ("JOGADOR 1 GANHA IMEDIATAMENTE POIS SEU POKEMON EH LENDARIO!!");
+            printf ("FILA JOG 1 ");
+            imprime_fila (jog1);
+            printf ("FILA JOG 2 ");
+            imprime_fila (jog2);
+            insere_fila(jog1, pkm_jogador2);
+            insere_fila(jog1, pkm_jogador1);
+        } else 
+            printf ("JOGADOR 2 GANHA IMEDIATAMENTE POIS SEU POKEMON EH LENDARIO!!");
+            printf("FILA JOG 1 ");
+            imprime_fila(jog1);
+            printf("FILA JOG 2 ");
+            imprime_fila(jog2);
+            insere_fila(jog2, pkm_jogador1);
+            insere_fila(jog2, pkm_jogador2);
+            
+    }
 
         jogadorSorteado = rand() % 2; // 0 para Jogador 1, 1 para Jogador 2
         if (jogadorSorteado == 0) { // jogador 1
@@ -461,8 +487,6 @@ void batalhaaaaa(Fila *jog1, Fila *jog2) {
             printf("HP (1) | ATAQUE (2) | DEFESA (3) | ATAQUE.SP (4) | DEFESA.SP (5)\n");
             scanf("%d", &atributo);
 
-            pkm_jogador1 = topo_fila(jog1); // pega a carta do topo da fila sem retirar
-            pkm_jogador2 = topo_fila(jog2); // pega a carta do topo da fila sem retirar
             switch (atributo) {
                 case 1:
                     valorAtributo1 = pkm_jogador1->hp;
