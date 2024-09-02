@@ -465,7 +465,7 @@ void batalhaaaaa(Fila *jog1, Fila *jog2) {
             imprime_fila (jog2);
             insere_fila(jog1, pkm_jogador2);
             insere_fila(jog1, pkm_jogador1);
-        } else 
+        }
             printf ("JOGADOR 2 GANHA IMEDIATAMENTE POIS SEU POKEMON EH LENDARIO!!");
             printf("FILA JOG 1 ");
             imprime_fila(jog1);
